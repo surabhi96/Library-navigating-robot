@@ -21,45 +21,48 @@ class DistanceControl():
             self.cmd_vel = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
             self.move_cmd = Twist()           
             self.counter = 0
-            self.kp = 0
-            self.kd = 0
+            self.kp = 0.1
+            self.kd = 0.1
             self.ki = 0
-            self.listener()
-                                 
+            self.dt = 1
+            self.listener()                                
   
     def listener(self):
             #rospy.init_node('listener', anonymous=True)
+            ti = rospy.get_time()
             rospy.Subscriber("chatter", Float64, self.callback)
-            r = rospy.Rate(10);
+            rate = rospy.Rate(10);
+
             while not rospy.is_shutdown():
                 self.cmd_vel.publish(self.move_cmd)
-                r.sleep()
+                rate.sleep()
+            tf = rospy.get_time()
+            self.dt = tf - ti
             rospy.spin()
 
-    def turn_left(self):
-            self.move_cmd.linear.x = 0
-            self.move_cmd.angular.z = 0.5
-            
-    def turn_right(self):
-            self.move_cmd.linear.x = 0
-            self.move_cmd.angular.z = -0.5
+    def callback(self, data): 
+            #t = rospy.get_time() 
+
+            if (self.counter == 0):
+                self.start = data.data # setting reference position 
+            self.counter = self.counter + 1
+            distance = data.data
+            error = distance - self.start 
+            self.straight()
+            #round_err = int(round((error))
+            #self.turn(error)
+            if (int(round(abs(error))) > 1):
+               self.turn(error)
+               rospy.loginfo("turn") 
+               
+
+    def turn(self, error):
+            self.move_cmd.linear.x = 0.1
+            self.move_cmd.angular.z = self.kp*error 
 
     def straight(self):
-            self.move_cmd.linear.x = 0.2
+            self.move_cmd.linear.x = 0.1
             self.move_cmd.angular.z = 0
-
-    def callback(self,data):
-            
-            if (self.counter == 0):
-                start = data.data
-            self.counter = self.counter + 1
-            distance = data.data         
-            if (distance > start):
-               self.turn_right()
-            elif (distance < start):
-               self.turn_left()
-            else:
-               self.straight()   
 
     def shutdown(self):
             rospy.loginfo("Stop TurtleBot")
@@ -73,4 +76,3 @@ if __name__ == '__main__':
             DistanceControl()
     except:
             rospy.loginfo("DistanceControl node terminated.")
-
