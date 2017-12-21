@@ -1,0 +1,66 @@
+#if (ARDUINO >= 100)
+ #include <Arduino.h>
+#else
+ #include <WProgram.h>
+#endif
+#include <ros.h>
+#include <ultrasonic_readings/UltrasonicReadings.h>
+#include <TimerOne.h>
+
+ros::NodeHandle nh;
+ultrasonic_readings::UltrasonicReadings Distance;
+ros::Publisher chatter("chatter",&Distance);
+
+// defines pins numbers
+const int trigPin1 = 9;
+const int echoPin1 = 10;
+const int trigPin2 = 11;
+const int echoPin2 = 12;
+const int Vcc = 7; 
+
+// defines variables
+long duration;
+int distance;
+
+void setup() 
+{
+  
+  nh.initNode();
+  nh.advertise(chatter);
+  pinMode(trigPin1, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin1, INPUT); // Sets the echoPin as an Input
+  pinMode(trigPin2, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin2, INPUT); // Sets the echoPin as an Input
+
+  pinMode(Vcc, OUTPUT); // Sets Vcc as high
+  digitalWrite(Vcc, HIGH);
+  
+  Serial.begin(57600); // Starts the serial communication
+  Timer1.initialize(500000); // set a timer of length 100000 microseconds (or 0.1 sec - or 10Hz => the led will blink 5 times, 5 cycles of on-and-off, per second)
+  Timer1.attachInterrupt(callback); // attach the service routine here
+}
+
+void loop()
+{
+  cal_distance(trigPin1, echoPin1);
+  Distance.data1 = distance;
+  cal_distance(trigPin2, echoPin2);
+  Distance.data2 = distance;
+}
+
+void callback() 
+{
+  chatter.publish(&Distance);
+  nh.spinOnce();
+}
+
+void cal_distance(int trigPin, int echoPin)
+{
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034/2;
+}
