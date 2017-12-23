@@ -55,7 +55,7 @@ class DistanceControl():
 
             if (int(round(abs(error))) >= 1):
                self.turn(error)
-               rospy.loginfo("turn") 
+                
             if (self.counter == 0):
                self.straight() 
                self.counter = self.counter + 1
@@ -63,11 +63,12 @@ class DistanceControl():
 
     def turn(self, error):
             self.move_cmd.linear.x = 0.1
-            if (self.kp*error < 0.4):
+            if (self.kp*error < 0.3):
+               # +ve error => turns left
                self.move_cmd.angular.z = self.kp*error 
                rospy.loginfo("Proportional")
             else:
-               self.move_cmd.angular.z = 0.4
+               self.move_cmd.angular.z = 0.3
                rospy.loginfo("default speed")
 
     def straight(self):
