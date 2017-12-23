@@ -34,11 +34,11 @@ class DistanceControl():
             ti = rospy.get_time()
             rospy.Subscriber("chatter", UltrasonicReadings, self.callback)
             rate = rospy.Rate(10);
-            if (self.counter == 1):
-                self.straight()
-
 
             while not rospy.is_shutdown():
+                if (self.counter == 1):
+                   self.straight()
+                   rospy.loginfo("straight")
                 self.cmd_vel.publish(self.move_cmd)
                 rate.sleep()
             tf = rospy.get_time()
@@ -47,7 +47,6 @@ class DistanceControl():
 
     def callback(self, data): 
             #t = rospy.get_time() 
-            rospy.loginfo("callb")
             self.start_x1 = data.data1 # setting reference position only for the front ultrasonic sensor
             self.start_x2 = data.data2
             error = self.start_x1 - self.start_x2 # positive error -> anticlk wise
@@ -59,13 +58,14 @@ class DistanceControl():
                rospy.loginfo("turn") 
             if (self.counter == 0):
                self.straight() 
-            self.counter = self.counter + 1
+               self.counter = self.counter + 1
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 
     def turn(self, error):
             self.move_cmd.linear.x = 0.1
             if (self.kp*error < 0.4):
                self.move_cmd.angular.z = self.kp*error 
+               rospy.loginfo("Proportional")
             else:
                self.move_cmd.angular.z = 0.4
                rospy.loginfo("default speed")
