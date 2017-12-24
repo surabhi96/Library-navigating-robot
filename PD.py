@@ -15,10 +15,11 @@ class DistanceControl():
             self.cmd_vel = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
             self.move_cmd = Twist() # by default the Twist msg values are equal to 0     
             self.counter = 0
-            self.kp = 0.1
-            self.kd = 0.1
-            self.ki = 0
+            self.kp = 0.06
+            self.kd = 0.01
+            self.ki = 0.00
             self.prev_err = 0
+            self.incre_err = 0
             self.prev_time = rospy.get_time()
             self.listener() 
                                          
@@ -39,13 +40,15 @@ class DistanceControl():
 
     def callback(self, data): 
             t = rospy.get_time() 
-            del_t = t - self.prev_time
+            self.del_t = t - self.prev_time
             self.prev_time = t
             
             self.start_x1 = data.data1 # setting reference position only for the front ultrasonic sensor
             self.start_x2 = data.data2
             error = self.start_x1 - self.start_x2 # positive error -> anticlk wise
-            del_err = error - self.prev_err
+            rospy.loginfo(error)
+            self.del_err = error - self.prev_err
+            self.incre_err += error*self.del_t
             self.prev_err = error
             #self.straight()
 
@@ -63,15 +66,20 @@ class DistanceControl():
 
     def turn(self, error):
             self.move_cmd.linear.x = 0.1
-            ang_vel = self.kp*error + self.kd*(self.prev_err/ self.prev_time)
-            if (ang_vel < 0.3):
-               # +ve error => turns left
-               self.move_cmd.angular.z = ang_vel
-               rospy.loginfo("PD")
-            else:
-               self.move_cmd.angular.z = 0.3
-               rospy.loginfo("default speed")
+            ang_vel = self.kp*error + self.kd*(self.del_err/ self.del_t) + self.ki*(self.incre_err)
+            #rospy.loginfo(ang_vel)
+            default_speed = 0.3
 
+            if ang_vel>default_speed:
+               ang_vel=default_speed
+            elif ang_vel<-default_speed:
+               ang_vel=-default_speed
+
+            self.move_cmd.angular.z = ang_vel
+               
+               
+            
+            rospy.loginfo(self.move_cmd.angular.z)
     def straight(self):
             self.move_cmd.linear.x = 0.1
             self.move_cmd.angular.z = 0
