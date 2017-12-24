@@ -31,9 +31,6 @@ class DistanceControl():
             rate = rospy.Rate(10);
 
             while not rospy.is_shutdown():
-                if (self.counter == 1):
-                   self.straight()
-                   rospy.loginfo("straight")
                 self.cmd_vel.publish(self.move_cmd)
                 rate.sleep()
             #tf = rospy.get_time()
@@ -54,6 +51,10 @@ class DistanceControl():
 
             if (int(round(abs(error))) >= 1):
                self.turn(error)
+            elif (self.counter == 1):
+                   self.straight()
+                   rospy.loginfo("straight")
+
                 
             if (self.counter == 0):
                self.straight() 
