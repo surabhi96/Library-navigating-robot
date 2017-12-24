@@ -23,6 +23,7 @@ max_zngular_vel=0.4
 #PUBLISHER
 cmd_vel = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
 Time[1]=time.time()
+start_time=Time[1]
 i_error=0
 
 
@@ -45,7 +46,7 @@ def GetData(data):
     Time[1]=time.time()
     #back differntiation 
     d_error=(errors[1]-errors[0]) / (Time[1]-Time[0])
-    i_error=i_error+(errors[1] * Time[1])
+    i_error=i_error+(errors[1] * (Time[1]-start_time))
     move_cmd.angular.z =kp * error + kd * d_error + ki * i_error#PID 
 
     #putting limit on angular velocity
