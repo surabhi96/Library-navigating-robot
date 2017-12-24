@@ -23,7 +23,7 @@ max_zngular_vel=0.4
 #PUBLISHER
 cmd_vel = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
 Time[1]=time.time()
-
+i_error=0
 
 
 def callback(data):
@@ -45,7 +45,7 @@ def GetData(data):
     Time[1]=time.time()
     #back differntiation 
     d_error=(errors[1]-errors[0]) / (Time[1]-Time[0])
-    i_error=(errors[0]+errors[1]) * (Time[1]-Time[0])
+    i_error=i_error+(errors[1] * Time[1])
     move_cmd.angular.z =kp * error + kd * d_error + ki * i_error#PID 
 
     #putting limit on angular velocity
@@ -77,5 +77,4 @@ if __name__ == '__main__':
         Move()
     except:
         rospy.loginfo("Node terminated.")
-
 
