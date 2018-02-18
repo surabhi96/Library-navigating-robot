@@ -1,5 +1,9 @@
-# USAGE
-# python edge_detect_barcode.py --image images/test4_color.jpeg
+# Last Edit: 18th Feb 2018
+# Author: Surabhi Verma 
+
+# ASSUMPTION1: Reqd. opencv 2.4.9 and python2
+# ASSUMPTION2: The image test4_color.jpeg is in the dataset folder. 
+# USAGE: python2 red_detect.py --image dataset/test4_color.jpeg
 
 # import the necessary packages
 import numpy as np
