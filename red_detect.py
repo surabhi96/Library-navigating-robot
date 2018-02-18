@@ -1,5 +1,5 @@
 # USAGE
-# python edge_detect_barcode.py --image images/barcode_01.jpg
+# python edge_detect_barcode.py --image images/test4_color.jpeg
 
 # import the necessary packages
 import numpy as np
@@ -8,58 +8,74 @@ import cv2
 import math
 from matplotlib import pyplot as plt
 
+# continuous loop 
 while True:
  # construct the argument parse and parse the arguments
  ap = argparse.ArgumentParser()
  ap.add_argument("-i", "--image", required = True, help = "path to the image file")
  args = vars(ap.parse_args())
 
- # load the image, remove noise by gaussian blur, convert it to grayscale 
+ # load the image, convert it to HSV for red color thresholding  
  image = cv2.imread(args["image"])
  hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
- lower_blue = np.array([136,69,68])
- upper_blue = np.array([255,167,255])
- # Threshold the HSV image to get only blue colors
- mask = cv2.inRange(hsv, lower_blue, upper_blue)
+ # decide the upper and lower bounds of your threshold 
+ lower_red = np.array([136,69,68])
+ upper_red = np.array([255,167,255])
+ # Threshold the HSV image to get only red colors
+ mask = cv2.inRange(hsv, lower_red, upper_red)
  # Bitwise-AND mask and original image
  res = cv2.bitwise_and(image,image, mask= mask)
- cv2.imshow('image',image)
- cv2.imshow("res", res) # show thresholded image 
+ # show thresholded image
+ cv2.imshow("res", res) 
+
+ # Apply MeanShiftFiltering. This reduces the number of unnecessary contours in your image. 
+ # Note: contours are formed due to small irregularities in apparently uniform object. 
  res = cv2.pyrMeanShiftFiltering(res, 21, 91)
- #blur = cv2.GaussianBlur(res,(15,15),0) #remove blur as the change in gradient for detecting proper edges is hampered 
- # erode dilate erode 
+ # erode to remove small noise 
  edges = cv2.erode(res, None, iterations = 10)
  cv2.imshow("erode1", edges)
+ # dilate to make the reqd contours big in size to overcome the shrink due to eroding it previously 
  edges = cv2.dilate(edges, None, iterations = 6)
  cv2.imshow("dilate1", edges)
+ # erode to remove small noise and extra dilating 
  blur = cv2.erode(edges, None, iterations = 3)
  cv2.imshow("blur", blur)
  
-# compute canny edge (draws edges for open/ closed boundaries)
+ # compute canny edges for closed boundaries with 100 as minvalue and 200 as maxvalue 
  edges = cv2.Canny(blur,100,200)
  #edges = cv2.dilate(edges, None, iterations = 1)
+ # show the output of canny edge 
  cv2.imshow("edges", edges)
-
+ # find the external contours  
  contours, hierarchy = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
- moments  = [cv2.moments(cnt) for cnt in contours]
- # Nota Bene: I rounded the centroids to integer.
+
+ # draw bounding boxes for all the contours 
+ for ct in contours:
+    # get the min area rect
+    # rect[0] gives the (x,y) coordinates of center of rectangle 
+    # rect[1] gives the (width,height) of rectangle 
+    # rect[2] gives the tilt angle of rectangle     
+    rect = cv2.minAreaRect(ct)
+    # This function gets 4 corners of the rectangle
+    box = cv2.cv.BoxPoints(rect) 
+    # convert all coordinates floating point values to int
+    box = np.int0(box)
+    # draw a red 'nghien' rectangle
+    cv2.drawContours(image, [box], 0, (0, 0, 255))
+
+ # calculating the moments to compute centroid of the contours 
+ moments = [cv2.moments(cnt) for cnt in contours]
+ # Rounding the centroids to integer
  centroids = [( int(round(m['m10']/m['m00'])),int(round(m['m01']/m['m00'])) ) for m in moments]
- 
- print "contours %d"%len(contours)
- cv2.drawContours(image, contours, -1, (0, 255, 0), -1) #---set the last parameter to -1
-# cv2.circle(image, (cx, cy), 2, (255, 255, 255), -1)
-# show the blurred image
+ # Drawing a black little empty circle in the centroid position for all contours 
  for c in centroids:
-    # I draw a black little empty circle in the centroid position
     cv2.circle(image,c,5,(0,0,0))
+
+ # show the final image 
  cv2.imshow("Image", image)
 
-
-
-
+ # repeat the program  
  c = cv2.waitKey(1)
  if c==27:
    break
-
 
