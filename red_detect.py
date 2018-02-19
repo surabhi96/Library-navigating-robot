@@ -5,9 +5,6 @@
 # ASSUMPTION2: The image test4_color.jpeg is in the dataset folder. 
 # USAGE: python2 red_detect.py --image dataset/test4_color.jpeg
 
-# USAGE
-# python edge_detect_barcode.py --image images/test4_color.jpeg
-
 # import the necessary packages
 import numpy as np
 # to parse our command line arguments 
