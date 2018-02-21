@@ -15,7 +15,6 @@ from matplotlib import pyplot as plt
 
 # continuous loop 
 while True:
-
  # COMMAND LINE ARGUMENTS 
  # construct the argument parse and parse the arguments
  ap = argparse.ArgumentParser()
