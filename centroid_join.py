@@ -3,7 +3,7 @@
 
 # ASSUMPTION1: Reqd. opencv 2.4.9 and python2
 # ASSUMPTION2: The image test4_color.jpeg is in the dataset folder. 
-# USAGE: python2 centroid_join.py --image dataset/test4_color.jpeg
+# USAGE: python2 red_detect.py --image dataset/test4_color.jpeg
 
 # import the necessary packages
 import numpy as np
@@ -15,6 +15,7 @@ from matplotlib import pyplot as plt
 
 # continuous loop 
 while True:
+
  # COMMAND LINE ARGUMENTS 
  # construct the argument parse and parse the arguments
  ap = argparse.ArgumentParser()
@@ -54,12 +55,13 @@ while True:
  # DECLARATION 
  # list to store the centroids of contours of interest  
  roi_centroids = []
- # list to store the angles of contours of interest
- roi_angles = [] 
+ # list to store the contours of interest
+ roi = [] 
+ roi_box = []
 
  # DRAW BOUNDING BOXES FOR THE CONTOURS 
  for ct in contours:
-
+    
     # get the min area rect
     # rect[0] gives the (x,y) coordinates of center of rectangle 
     # rect[1] gives the (width,height) of rectangle 
@@ -76,13 +78,12 @@ while True:
     rect_area = rect[1][0]*rect[1][1]
     # compute the ratio
     extent = float(area)/rect_area
-
     # This condition is applied so that only rectangles and not other noise is considered   
     # if the ratio is almost = 1 
     if (extent >= 0.8):
 
        # draw a red 'nghien' rectangle
-       cv2.drawContours(image, [box], 0, (0, 0, 255))
+       #cv2.drawContours(image, [box], 0, (0, 0, 255))
        # calculating the moments to compute centroid of the contours 
        M = cv2.moments(ct) 
        # Rounding the centroid to integer
@@ -90,11 +91,10 @@ while True:
        # store the centroids of all the contours of interest  
        roi_centroids.append(centroid)
        # Drawing a black little empty circle in the centroid position for all contours
-       cv2.circle(image,centroid,5,(0,0,0),1)
-       # angle of the line to be drawn 
-       angle = rect[2]
-       # store the angles of all the bounding boxes of interest  
-       roi_angles.append(angle)
+       #cv2.circle(image,centroid,5,(0,0,0),1)
+       # store all the bounding boxes of interest  
+       roi.append(rect)
+       roi_box.append(box)
 
  # JOINING THE CENTROIDS OF CORRESPONDING BARCODES 
  # 'i' is the centroid in consideration 
@@ -106,9 +106,10 @@ while True:
          # The slopes of all lines from 'i'th centroid to 'j'th centroid 
          theta_rad = math.atan2( (roi_centroids[i][1] - roi_centroids[j][1]) , (roi_centroids[i][0] - roi_centroids[j][0]) )
          theta = ( theta_rad * 180 ) / math.pi
-         # difference between the lines joining current centroid to all other centroids 
-         # and the angle of bounding box of the contour of current centroid 
-         diff = abs(theta - roi_angles[i])
+         # difference between the theta of (lines joining the centroid under consideration to all other centroids) 
+         # and (the angle of bounding box of the contour of the centroid under consideration) 
+         # roi[i][2] is the angle of the bounding box of the centroid under consideration 
+         diff = abs(theta - roi[i][2])
 
          # If theta is almost equal to angle[i]
          if (diff < 5):
@@ -120,7 +121,15 @@ while True:
              endpt_x = roi_centroids[j][0]
              endpt_y = roi_centroids[j][1]
              # draw line 
-             cv2.line(image,(startpt_x,startpt_y),(endpt_x,endpt_y),(255,0,0),3)
+             #cv2.line(image,(startpt_x,startpt_y),(endpt_x,endpt_y),(255,0,0),3)
+             # bounding boxes of the barcodes 
+             # storing the rectangle corner points as numpy array to draw the bounding rectangle 
+             barcodes = np.array([[roi_box[i][0]], [roi_box[i][1]], [roi_box[j][2]], [roi_box[j][3]]])
+             rect = cv2.minAreaRect(barcodes)
+             box = cv2.cv.BoxPoints(rect) 
+             box = np.int0(box)  
+             # draw a red 'nghien' rectangle
+             cv2.drawContours(image, [box], 0, (0, 0, 255))
 
  # show the final image 
  cv2.imshow("Image", image)
@@ -129,4 +138,3 @@ while True:
  c = cv2.waitKey(1)
  if c==27:
    break
-
