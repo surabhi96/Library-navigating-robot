@@ -3,7 +3,7 @@
 
 # ASSUMPTION1: Reqd. opencv 2.4.9 and python2
 # ASSUMPTION2: The image test4_color.jpeg is in the dataset folder. 
-# USAGE: python2 red_detect.py --image dataset/test4_color.jpeg
+# USAGE: python2 centroid_join.py --image dataset/test4_color.jpeg
 
 # import the necessary packages
 import numpy as np
