@@ -2,8 +2,7 @@
 
 # Written by-Sakshi Kakde
 # Date-8 March 2017
-# A TurtleBot script that moves the Turtlebot if the distance measured by ultrasonuc sensor id less than 10 cm . Press CTRL + C to stop.  To run:
-# On TurtleBot:
+# A TurtleBot script that moves the Turtlebot forward. Also the bot will stop if there is some obstacle in front of it.
 # roslaunch turtlebot_bringup minimal.launch
 # On work station:
 # python move_paralle.py
