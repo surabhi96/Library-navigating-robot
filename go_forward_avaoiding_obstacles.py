@@ -61,21 +61,3 @@ if __name__ == '__main__':
         listener()
     except:
         rospy.loginfo("GoForward node terminated.")/scan", LaserScan, callback)
-
-#
-    # Initial movement.
-    cmd_vel.publish(move_cmd_init)
-    rospy.on_shutdown(shutdown)
-    rospy.spin() 
-
-def shutdown():
-    # stop turtlebot
-    rospy.loginfo("Stop TurtleBot")
-    # a default Twist has linear.x of 0 and angular.z of 0.  So it'll stop TurtleBot
-    cmd_vel.publish(Twist())
-
-if __name__ == '__main__':
-    try:
-        MoveParallel()
-    except:
-        rospy.loginfo("GoForward node terminated.")
