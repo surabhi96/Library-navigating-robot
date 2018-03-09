@@ -1,31 +1,24 @@
 #!/usr/bin/env python
-# Written by-Sakshi Kakde
-# Date-8 March 2017
-# A TurtleBot script that moves the Turtlebot if the distance measured by ultrasonuc sensor id less than 10 cm . 
-#Also the bot will stop if there is some obstacle in front of it.
-#Press CTRL + C to stop.  To run:
-# On TurtleBot:
-# roslaunch turtlebot_bringup minimal.launch
-# On work station:
-# python move_paralle.py
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Float64
 
-global kinect_distance 
-kinect_distance=0
+
+
 
 # For initial movement.
 move_cmd_init = Twist()
 move_cmd_init.linear.x = 0
 move_cmd_init.angular.z = 0
 
-
+ref_dist=10
+kp=0.01
 
 cmd_vel = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
 
 def callback1(data):
+   global kinect_distance 
    kinect_distance=data.ranges[320]
 
 def callback2(data):
@@ -39,14 +32,14 @@ def callback2(data):
       move_cmd.linear.x = 0.1
       error=ultrasonic_distance-ref_dist
       move_cmd.angular.z =kp * error
+      cmd_vel.publish(move_cmd)
 
 
     else:
       print "stop"
       move_cmd.linear.x = 0
       move_cmd.angular.z =0
- 
-    cmd_vel.publish(move_cmd)
+      cmd_vel.publish(move_cmd)
 
    
 
