@@ -30,9 +30,11 @@ while True:
  lower_red = np.array([136,69,68])
  upper_red = np.array([255,167,255])
  # Threshold the HSV image to get only red colors
+ # mask is a binary image
  mask = cv2.inRange(hsv, lower_red, upper_red)
  # Bitwise-AND mask and original image
- # res is thresholded image
+ # res is thresholded image(8-bit, 3 channel)
+ # This is done because pyrMeanShiftFiltering() requires input image to be a 8-bit, 3 channeled one 
  res = cv2.bitwise_and(image,image, mask= mask) 
 
  # SOME MORPHOLOGICAL OPERATIONS
