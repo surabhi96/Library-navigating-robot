@@ -1,9 +1,9 @@
-# Last Edit: 11th April 2018
+# Last Edit: 21st Feb 2018
 # Author: Surabhi Verma 
 
 # ASSUMPTION1: Reqd. opencv 2.4.9 and python2
 # ASSUMPTION2: The image test4_color.jpeg is in the dataset folder. 
-# USAGE: python2 crop_singlebar.py --image dataset/test1.jpg
+# USAGE: python2 crop_singlebar.py --image dataset/test4_color.jpeg
 
 # IMPORT NECESSARY PACKAGES
 import numpy as np
@@ -171,7 +171,7 @@ while True:
  			diff = abs(abs(theta_deg) - abs(roi[i][2]))
 
  			# If theta is almost equal to roi[i][2]
- 			if (diff < 3):  
+ 			if (diff < 3):
 
  				print('diff = ', diff)
  				print('found')
@@ -187,36 +187,39 @@ while True:
  				# mark the points
  				# centroids
  				#cv2.circle(image,(startpt_x, startpt_y),5,(0,0,0),1)
-                #cv2.circle(image,(endpt_x, endpt_y),5,(0,0,0),1)
-                # barcode roi corner points
-                #cv2.circle(image,tuple(roi_box[i][0]),5,(0,0,0),1)
-                #cv2.circle(image,tuple(roi_box[i][1]),5,(0,0,0),1)
-                #cv2.circle(image,tuple(roi_box[j][2]),5,(0,0,0),1)
-                #cv2.circle(image,tuple(roi_box[j][3]),5,(0,0,0),1)
+                                #cv2.circle(image,(endpt_x, endpt_y),5,(0,0,0),1)
+                                # barcode roi corner points
+                                #cv2.circle(image,tuple(roi_box[i][0]),5,(0,0,0),1)
+                                #cv2.circle(image,tuple(roi_box[i][1]),5,(0,0,0),1)
+                                #cv2.circle(image,tuple(roi_box[j][2]),5,(0,0,0),1)
+                                #cv2.circle(image,tuple(roi_box[j][3]),5,(0,0,0),1)
  
-                # draw line 
-                #cv2.line(image,(startpt_x,startpt_y),(endpt_x,endpt_y),(255,0,0),3)
+                                # draw line 
+                                #cv2.line(image,(startpt_x,startpt_y),(endpt_x,endpt_y),(255,0,0),3)
 
-                # bounding boxes of the barcodes 
-                # storing the barcode roi corner points as numpy array to draw the bounding rectangle 
-                barcodes = np.array([[roi_box[i][0]], [roi_box[i][1]], [roi_box[j][2]], [roi_box[j][3]]])  
-                rect = cv2.minAreaRect(barcodes)	
-                box = cv2.cv.BoxPoints(rect)
-                box = np.int0(box) 
+                                # bounding boxes of the barcodes 
+                                # storing the barcode roi corner points as numpy array to draw the bounding rectangle 
+                                barcodes = np.array([[roi_box[i][0]], [roi_box[i][1]], [roi_box[j][2]], [roi_box[j][3]]])  
+                                rect = cv2.minAreaRect(barcodes)	
+                                box = cv2.cv.BoxPoints(rect)
+                                box = np.int0(box) 
                                  
-                # compute diagonals from the vertices of the barcode bounding box     
-                diag1 = math.hypot(roi_box[i][0][0] - roi_box[j][2][0], roi_box[i][0][1] - roi_box[j][2][1]) 
-                diag2 = math.hypot(roi_box[i][1][0] - roi_box[j][3][0], roi_box[i][1][1] - roi_box[j][3][1])
-        
-                # stop search
-                j = len(roi_centroids)
 
-                # Note that the difference condition alone is not sufficient to choose the right barcode bounding box
-                # draw a red 'nghien' rectangle only if the diagonals are of same length
-                if (abs(diag1-diag2) < 2):
-                    roi_barcode.append(rect)
-                	cv2.drawContours(image, [box], 0, (0, 0, 255))
-                	                    
+                                # compute diagonals from the vertices of the barcode bounding box     
+                                diag1 = math.hypot(roi_box[i][0][0] - roi_box[j][2][0], roi_box[i][0][1] - roi_box[j][2][1]) 
+                                diag2 = math.hypot(roi_box[i][1][0] - roi_box[j][3][0], roi_box[i][1][1] - roi_box[j][3][1])
+        
+                                # stop search
+                                j = len(roi_centroids)
+
+                                # Note that the difference condition alone is not sufficient to choose the right barcode bounding box
+                                # draw a red 'nghien' rectangle only if the diagonals are of same length
+                                if (abs(diag1-diag2) < 2):
+                                	roi_barcode.append(rect)
+                	                cv2.drawContours(image, [box], 0, (0, 0, 255))
+                	                
+		
+      
 			cv2.imshow("Image", image)
  			#print(i)
  			cv2.waitKey(10)
