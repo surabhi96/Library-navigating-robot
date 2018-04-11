@@ -1,4 +1,4 @@
-# Last Edit: 21st Feb 2018
+# Last Edit: 11th april 2018
 # Author: Surabhi Verma 
 
 # ASSUMPTION1: Reqd. opencv 2.4.9 and python2
@@ -172,9 +172,6 @@ while True:
 
  			# If theta is almost equal to roi[i][2]
  			if (diff < 3):
-
- 				print('diff = ', diff)
- 				print('found')
 
  				# startpoint is the centroid in consideration 
  				startpt_x = roi_centroids[i][0]
