@@ -93,14 +93,16 @@ int main(int argc, char **argv)
         int input_type = 0;
         input_type = atoi(name.c_str());
 
-        // If 'input_type' is equal to zero, it implies the decoded QR is that of a book 
+        // If 'input_type' is equal to zero i.e if the input is actually a string(book name),
+        // It implies the decoded QR is that of a book 
         if (input_type == 0) {
           book_msg.data = name; 
           ROS_INFO("book msg = %s", book_msg.data.c_str());
           pub_book.publish(book_msg);
         }
   
-        // If 'input_type' is not equal to zero, it implies the decoded QR is that of a rack 
+        // If 'input_type' is not equal to zero i.e if the input is actually an int(rack number), 
+        // It implies the decoded QR is that of a rack 
         else {
           rack_msg.data = input_type;
           ROS_INFO("rack msg = %d", rack_msg.data); 
