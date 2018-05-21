@@ -5,6 +5,7 @@
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include <std_msgs/Int8.h>
 #include <iostream>
 #include <iterator>
 #include <utility>
@@ -51,7 +52,7 @@ void bookinputCallback(const std_msgs::String::ConstPtr& msg)
 }
 
 // Rack input callback function
-void rackinputCallback(const std_msgs::String::ConstPtr& msg) 
+void rackinputCallback(const std_msgs::Int8::ConstPtr& msg) 
 {    
      // Indicates that a rack has been reached  
      rack_flag = 1;
